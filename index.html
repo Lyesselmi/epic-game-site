@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>موقع ألعاب</title>
+<style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+    }
+
+    header {
+      background-color: #1e1e1e;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      color: #4caf50;
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    .menu-btn {
+      font-size: 26px;
+      background: none;
+      border: none;
+      color: #eee;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -280px;
+      width: 260px;
+      height: 100%;
+      background: rgba(30, 30, 30, 0.98);
+      box-shadow: -2px 0 15px rgba(0, 0, 0, 0.8);
+      transition: right 0.35s;
+      z-index: 2000;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar.active {
+      right: 0;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 15px 25px;
+      color: #eee;
+      text-decoration: none;
+      border-bottom: 1px solid #333;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .sidebar a:hover {
+      background-color: #4caf50;
+      color: #fff;
+      border-radius: 5px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: none;
+      border: none;
+      color: #eee;
+      font-size: 28px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s;
+      z-index: 1500;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .search-bar {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .search-bar input {
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .games {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      padding: 10px 20px 30px;
+    }
+
+    .game {
+      background: #222;
+      border-radius: 8px;
+      width: 140px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(76,175,80,0.5);
+      transition: transform 0.3s;
+    }
+
+    .game:hover {
+      transform: translateY(-5px);
+    }
+
+    .game img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+    }
+
+    .game-title {
+      padding: 8px;
+      font-weight: bold;
+      color: #4caf50;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    #nextBtn {
+      display: block;
+      margin: 10px auto 30px auto;
+      background-color: #4caf50;
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #nextBtn:hover {
+      background-color: #43a047;
+    }
+
+    .category-btn {
+      background: #1e1e1e;
+      color: #4caf50;
+      border: 1px solid #4caf50;
+      border-radius: 20px;
+      padding: 8px 16px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .category-btn:hover,
+    .category-btn.active {
+      background-color: #4caf50;
+      color: #fff;
+    }
+
+    @media(max-width: 600px) {
+      .game {
+        width: 45%;
+      }
+      .game img {
+        height: 80px;
+      }
+    }
+  
+body {
+  transition: background 0.4s ease, color 0.4s ease;
+}
+body.light-mode .search-bar input {
+  background: #fff;
+  color: #222;
+}
+body .search-bar input {
+  background: #2c2c2c;
+  color: #eee;
+}
+
+.login-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.login-btn:hover {
+  background-color: #43a047;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.modal-box {
+  background: #1e1e1e;
+  padding: 25px 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  color: #eee;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+body.light-mode .modal-box {
+  background: #fff;
+  color: #222;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0 20px;
+}
+
+.modal-btn {
+  padding: 8px 16px;
+  border: 1px solid #4caf50;
+  background: transparent;
+  color: #4caf50;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.modal-btn:hover {
+  background: #4caf50;
+  color: #fff;
+}
+
+.modal-social .login-btn {
+  margin: 5px;
+  background-color: #4285F4;
+  color: #fff;
+}
+
+.modal-social .facebook {
+  background-color: #3b5998;
+}
+
+</style>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSeg729VEY8bioWEp6aytol0I87JJLMz0",
+    authDomain: "wed-game-aaad7.firebaseapp.com",
+    projectId: "wed-game-aaad7",
+    storageBucket: "wed-game-aaad7.firebasestorage.app",
+    messagingSenderId: "104314738954",
+    appId: "1:104314738954:web:b4f7ba6a37160907ed02f3",
+    measurementId: "G-9V1Y0C9KZN"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const analytics = getAnalytics(app);
+
+  window.firebaseAuth = { auth, provider, signInWithPopup, onAuthStateChanged };
+</script>
+<style>
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e1e1e;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  }
+
+  .left-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin: 0;
+  }
+
+  .logo-text span {
+    color: #4caf50;
+  }
+
+  .right-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .icon-btn {
+    font-size: 20px;
+    background: none;
+    border: none;
+    color: #eee;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  .login-btn {
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .user-info {
+    color: #4caf50;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  body.light-mode {
+    background: #f4f4f4;
+    color: #222;
+  }
+
+  body.light-mode .top-bar {
+    background: #fff;
+    color: #222;
+  }
+
+  body.light-mode .logo-text span {
+    color: #2e7d32;
+  }
+
+  body.light-mode .login-btn {
+    background-color: #1e88e5;
+  }
+
+.modal-overlay {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.modal-box {
+  background: #1e1e1e;
+  padding: 25px 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  color: #eee;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+body.light-mode .modal-box {
+  background: #fff;
+  color: #222;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0 20px;
+}
+
+.modal-btn {
+  padding: 8px 16px;
+  border: 1px solid #4caf50;
+  background: transparent;
+  color: #4caf50;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.modal-btn:hover {
+  background: #4caf50;
+  color: #fff;
+}
+
+.modal-social .login-btn {
+  margin: 5px;
+  background-color: #4285F4;
+  color: #fff;
+}
+
+.modal-social .facebook {
+  background-color: #3b5998;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 58px;
+  height: 28px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #555;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+input:checked + .slider:before {
+  transform: translateX(30px);
+}
+.slider .icon {
+  position: absolute;
+  top: 3px;
+  font-size: 18px;
+}
+.slider .moon {
+  left: 6px;
+  color: #ddd;
+}
+.slider .sun {
+  right: 6px;
+  color: #fdd835;
+}
+
+</style>
+</head>
+<script>
+  const themeSwitch = document.getElementById("themeSwitchInput");
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "light") {
+    document.body.classList.add("light-mode");
+    themeSwitch.checked = true;
+  }
+
+  themeSwitch.addEventListener("change", () => {
+    document.body.classList.toggle("light-mode");
+    localStorage.setItem("theme", document.body.classList.contains("light-mode") ? "light" : "dark");
+  });
+</script>
+
+<body>
+
+<header class="top-bar">
+  <div class="left-section">
+    <img alt="Epic Clicks Logo" class="logo-img" src="A_logo_for_a_gaming-related_brand_named_%22Epic_Clic.png"/>
+    <h1 class="logo-text">Epic <span>Clicks</span></h1>
+  </div>
+  <div class="right-section">
+    <label class="switch" style="transform: scale(0.85);">
+      <input type="checkbox" id="themeSwitchHeader">
+      <span class="slider">
+        <span class="icon moon">🌙</span>
+        <span class="icon sun">☀️</span>
+      </span>
+    </label>
+    <button class="menu-btn" id="menuToggle" aria-label="القائمة">☰</button>
+  </div>
+</header>
+<div class="search-bar">
+<input id="searchInput" placeholder="ابحث عن لعبة..." type="text"/>
+</div>
+
+
+
+<nav aria-hidden="true" class="sidebar" id="sidebar">
+<button aria-label="إغلاق القائمة" class="close-btn" id="closeSidebar">×</button>
+<a href="#">🏠 الصفحة الرئيسية</a>
+<a href="#">🎮 التصنيفات</a>
+<a href="#">🆕 ألعاب جديدة</a>
+<a href="#">📞 اتصل بنا</a>
+
+  <div class="sidebar-options">
+    <button class="sidebar-btn" id="langToggle">🌐 تغيير اللغة</button>
+    <button class="login-btn" id="sidebarLoginBtn">تسجيل الدخول</button>
+  </div>
+</nav>
+<div class="overlay" id="overlay"></div>
+<!-- زر تسجيل الدخول -->
+<div id="categoryFilter" style="text-align: center; margin-bottom: 10px;">
+<button class="category-btn active" data-cat="all">🎯 الكل</button>
+<button class="category-btn" data-cat="أكشن">🧨 أكشن</button>
+<button class="category-btn" data-cat="ألغاز">🧩 ألغاز</button>
+<button class="category-btn" data-cat="سباق">🏎️ سباق</button>
+<button class="category-btn" data-cat="رياضة">⚽ رياضة</button>
+</div>
+<div class="games" id="gamesContainer"></div>
+
+<div style="text-align:center;margin:20px;">
+  <button id="prevBtn" style="
+    display:none;
+    background-color:#4caf50;
+    border:none;
+    color:white;
+    padding:10px 25px;
+    font-size:1rem;
+    border-radius:5px;
+    cursor:pointer;
+    margin-left:10px;
+  ">السابق</button>
+  <button id="nextBtn" style="
+    background-color:#4caf50;
+    border:none;
+    color:white;
+    padding:10px 25px;
+    font-size:1rem;
+    border-radius:5px;
+    cursor:pointer;
+  ">التالي</button>
+</div>
+
+<script>
+const gamesData = [
+  {id:1,title:"Slither.io",img:"https://slither.io/s/i/logo192.png",category:"Casual",url:"https://slither.io",rating:4.7},
+  {id:2,title:"Krunker.io",img:"https://krunker.io/img/preview.png",category:"أكشن",url:"https://krunker.io",rating:4.5},
+  {id:3,title:"ZombsRoyale.io",img:"https://zombsroyale.io/assets/img/logo.png",category:"أكشن",url:"https://zombsroyale.io",rating:4.6},
+  {id:4,title:"Shell Shockers",img:"https://images.swsrv.net/images/games/shellshockers.jpg",category:"أكشن",url:"https://shellshock.io",rating:4.4},
+  {id:5,title:"Clicker Heroes",img:"https://clickerheroes.com/img/logo.png",category:"Casual",url:"https://clickerheroes.com",rating:4.3},
+  {id:6,title:"Happy Wheels",img:"https://play.happywheelsgame.com/images/happy-wheels-logo.png",category:"مغامرات",url:"https://play.happywheelsgame.com",rating:4.6},
+  {id:7,title:"Threes!",img:"https://play.threesgame.com/images/share.jpg",category:"ألغاز",url:"https://play.threesgame.com",rating:4.8},
+  {id:8,title:"Cookie Clicker",img:"https://orteil.dashnet.org/cookieclicker/img/favicon.ico",category:"Casual",url:"https://orteil.dashnet.org/cookieclicker/",rating:4.5},
+  {id:9,title:"Barbie You Can Be a Chef",img:"https://plays.org/wp-content/uploads/barbie-you-can-be-a-chef-featured.jpg",category:"بنات",url:"https://plays.org/barbie-you-can-be-a-chef/",rating:4.1},
+  {id:10,title:"Cooking Street",img:"https://plays.org/wp-content/uploads/cooking-street-featured.jpg",category:"بنات",url:"https://plays.org/cooking-street/",rating:4.0},
+  {id:11,title:"Monster High Pizza",img:"https://archive.org/download/monster-high-pizza/monster-high-pizza.jpg",category:"بنات",url:"https://archive.org/details/monster-high-pizza",rating:3.9},
+  {id:12,title:"Butternut Squash Soup",img:"https://archive.org/download/butternut-squash-soup/butternut-squash-soup.jpg",category:"بنات",url:"https://archive.org/details/butternut-squash-soup",rating:4.2},
+  {id:13,title:"Makeup Mania",img:"https://cdn.pixabay.com/photo/2016/10/29/09/54/makeup-1788768_1280.jpg",category:"بنات",url:"https://example.com/makeup",rating:4.0},
+  {id:14,title:"Princess Coloring",img:"https://cdn.pixabay.com/photo/2020/04/12/09/33/girl-5033577_1280.jpg",category:"بنات",url:"https://example.com/coloring",rating:4.4},
+  ...Array.from({length:36},(_,i)=>({
+    id:15+i,
+    title:`لعبة ${15+i}`,
+    img:"https://via.placeholder.com/180x100?text=Game+"+(15+i),
+    category:["أكشن","سباق","ألغاز","رياضة","مغامرات","تعليمية","Casual"][i%7],
+    url:"#",
+    rating:4+(i%5)*0.1
+  }))
+];
+
+const gamesContainer = document.getElementById("gamesContainer");
+const nextBtn = document.getElementById("nextBtn");
+const searchInput = document.getElementById("searchInput");
+const menuToggle = document.getElementById("menuToggle");
+const sidebar = document.getElementById("sidebar");
+const closeSidebar = document.getElementById("closeSidebar");
+const overlay = document.getElementById("overlay");
+
+let currentPage = 1;
+let currentData = [...gamesData];
+let currentFilter = "all";
+
+function getItemsPerPage() {
+  return window.innerWidth <= 600 ? 8 : 18;
+}
+
+function renderGames() {
+  const perPage = getItemsPerPage();
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+  const data = currentData;
+  const pageGames = data.slice(start, end);
+  gamesContainer.innerHTML = "";
+  pageGames.forEach(game => {
+    const div = document.createElement("div");
+    div.className = "game";
+    div.innerHTML = `
+      <a href="${game.url}" target="_blank" style="text-decoration:none;color:inherit">
+        <img src="${game.img}" alt="${game.title}" />
+        <div class="game-title">${game.title}</div>
+        <div style="text-align:center;color:#ff0;">⭐ ${game.rating.toFixed(1)}</div>
+      </a>`;
+    gamesContainer.appendChild(div);
+  });
+  document.getElementById("prevBtn").style.display = currentPage > 1 ? "inline-block" : "none";
+  nextBtn.style.display = end >= data.length ? "none" : "inline-block";
+}
+
+nextBtn.onclick = () => { currentPage++; renderGames(); };
+document.getElementById("prevBtn").onclick = () => { if (currentPage > 1) currentPage--; renderGames(); };
+
+document.querySelectorAll(".category-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".category-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const cat = btn.getAttribute("data-cat");
+    currentPage = 1;
+    currentData = cat === "all" ? [...gamesData] : gamesData.filter(g => g.category === cat);
+    renderGames();
+  });
+});
+
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.trim().toLowerCase();
+  currentPage = 1;
+  currentData = gamesData.filter(game => game.title.toLowerCase().includes(query));
+  renderGames();
+});
+
+window.addEventListener("resize", () => {
+  currentPage = 1;
+  renderGames();
+});
+
+renderGames();
+</script>
+window.addEventListener("resize", () => {
+  currentPage = 1;
+  renderGames(currentData);
+});
+</script>
+<script type="module">
+  const {
+    auth,
+    provider,
+    signInWithPopup,
+    onAuthStateChanged
+  } = window.firebaseAuth;
+
+  const loginBtn = document.getElementById("loginBtn");
+  const userInfo = document.getElementById("userInfo");
+
+  loginBtn.addEventListener("click", async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      userInfo.innerText = `مرحبًا، ${user.displayName}`;
+      loginBtn.style.display = "none";
+    } catch (error) {
+      console.error(error);
+      alert("فشل تسجيل الدخول");
+    }
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userInfo.innerText = `مرحبًا، ${user.displayName}`;
+      loginBtn.style.display = "none";
+    }
+  });
+</script>
+<script>
+  document.getElementById("langToggle").addEventListener("click", () => {
+    alert("سيتم دعم تغيير اللغة لاحقًا...");
+  });
+</script>
+
+<!-- Modal Login/Register -->
+<div id="authModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <button class="modal-close" id="closeModal">×</button>
+    <h2 style="margin-bottom: 10px;">أهلاً بك في Epic Clicks</h2>
+    <div class="modal-actions">
+      <button class="modal-btn">📥 تسجيل</button>
+      <button class="modal-btn">🔑 تسجيل الدخول</button>
+    </div>
+    <p style="margin: 15px 0 5px;">أو تابع عبر:</p>
+    <div class="modal-social">
+      <button id="loginBtn" class="login-btn">Google 🔵</button>
+      <button class="login-btn facebook">Facebook 🔵</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const loginTrigger = document.querySelector(".login-btn");
+  const authModal = document.getElementById("authModal");
+  const closeModal = document.getElementById("closeModal");
+
+  if (loginTrigger && authModal && closeModal) {
+    loginTrigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      authModal.style.display = "flex";
+    });
+
+    closeModal.addEventListener("click", () => {
+      authModal.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === authModal) authModal.style.display = "none";
+    });
+  }
+</script>
+
+
+<script>
+  // Sidebar & overlay
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const menuToggle = document.getElementById("menuToggle");
+  const closeSidebar = document.getElementById("closeSidebar");
+
+  if (menuToggle) menuToggle.onclick = () => {
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+  };
+  if (closeSidebar) closeSidebar.onclick = () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  };
+  if (overlay) overlay.onclick = () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  };
+
+  // Default to light mode on first visit
+  const themeSwitch = document.getElementById("themeSwitchHeader");
+  const savedTheme = localStorage.getItem("theme");
+  if (!savedTheme) {
+    document.body.classList.add("light-mode");
+    localStorage.setItem("theme", "light");
+  } else if (savedTheme === "light") {
+    document.body.classList.add("light-mode");
+    if (themeSwitch) themeSwitch.checked = true;
+  }
+
+  if (themeSwitch) {
+    themeSwitch.addEventListener("change", () => {
+      document.body.classList.toggle("light-mode");
+      localStorage.setItem("theme", document.body.classList.contains("light-mode") ? "light" : "dark");
+    });
+  }
+
+  // Language alert
+  const langBtn = document.getElementById("langToggle");
+  if (langBtn) {
+    langBtn.onclick = () => alert("سيتم دعم تغيير اللغة قريبًا");
+  }
+
+  // Swipe gesture for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+  document.addEventListener("touchstart", e => touchStartX = e.changedTouches[0].screenX);
+  document.addEventListener("touchend", e => {
+    touchEndX = e.changedTouches[0].screenX;
+    if (touchEndX - touchStartX > 70) {
+      sidebar.classList.add("active");
+      overlay.classList.add("active");
+    }
+  });
+
+  // Firebase login
+  const { auth, provider, signInWithPopup, onAuthStateChanged } = window.firebaseAuth;
+  const loginBtn = document.getElementById("sidebarLoginBtn");
+  const userInfo = document.getElementById("userInfo");
+
+  if (loginBtn) {
+    loginBtn.addEventListener("click", async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        userInfo.innerText = `مرحبًا، ${user.displayName}`;
+        loginBtn.style.display = "none";
+      } catch (err) {
+        alert("فشل تسجيل الدخول");
+      }
+    });
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userInfo.innerText = `مرحبًا، ${user.displayName}`;
+      loginBtn.style.display = "none";
+    }
+  });
+</script>
+
+</body>
+</html>
